@@ -7,70 +7,66 @@
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 
     <script>
-        setTimeout(function() {
+        BoaSdk.SodiumHelper.init()
+            .then(function() {
+                writeMessage("[Test for Hash]");
+                var h = BoaSdk.hash(stringToUint8Array('abc'));
+                if (h.toString() === '0x239900d4ed8623b95a92f1dba88ad31895cc3345ded552c22d79ab2a39c5877' +
+                    'dd1a2ffdb6fbb124bb7c45a68142f214ce9f6129fb697276a0d4d1c983fa580ba') {
+                    writeMessage("    => Hash Success");
+                }
+                else {
+                    writeMessage("    => Hash Fail");
+                }
 
-            writeMessage("[Test for Hash]");
-            var h = BoaSdk.hash(stringToUint8Array('abc'));
-            if (h.toString() === '0x239900d4ed8623b95a92f1dba88ad31895cc3345ded552c22d79ab2a39c5877' +
-                'dd1a2ffdb6fbb124bb7c45a68142f214ce9f6129fb697276a0d4d1c983fa580ba') {
-                writeMessage("    => Hash Success");
-            }
-            else {
-                writeMessage("    => Hash Fail");
-            }
+                writeMessage("[Test for makeUTXOKey]");
+                var tx_hash = new BoaSdk.Hash();
+                tx_hash.fromString('0x5d7f6a7a30f7ff591c8649f61eb8a35d034824ed5cd252c2c6f10cdbd223671' +
+                    '3dc369ef2a44b62ba113814a9d819a276ff61582874c9aee9c98efa2aa1f10d73');
+                var hash = BoaSdk.makeUTXOKey(tx_hash, BoaSdk.JSBInt.BigInt(1));
 
-            writeMessage("[Test for makeUTXOKey]");
-            var tx_hash = new BoaSdk.Hash();
-            tx_hash.fromString('0x5d7f6a7a30f7ff591c8649f61eb8a35d034824ed5cd252c2c6f10cdbd223671' +
-                '3dc369ef2a44b62ba113814a9d819a276ff61582874c9aee9c98efa2aa1f10d73');
-            var hash = BoaSdk.makeUTXOKey(tx_hash, BoaSdk.JSBInt.BigInt(1));
+                if (hash.toString() === '0x7c95c29b184e47fbd32e58e5abd42c6e22e8bd5a7e934ab049d21df545e09c2' +
+                    'e33bb2b89df2e59ee01eb2519b1508284b577f66a76d42546b65a6813e592bb84') {
+                    writeMessage("    => makeUTXOKey Success");
+                }
+                else {
+                    writeMessage("    => makeUTXOKey Fail");
+                }
 
-            if (hash.toString() === '0x7c95c29b184e47fbd32e58e5abd42c6e22e8bd5a7e934ab049d21df545e09c2' +
-                'e33bb2b89df2e59ee01eb2519b1508284b577f66a76d42546b65a6813e592bb84') {
-                writeMessage("    => makeUTXOKey Success");
-            }
-            else {
-                writeMessage("    => makeUTXOKey Fail");
-            }
+                writeMessage("[Test for verify]");
+                var address = 'GDD5RFGBIUAFCOXQA246BOUPHCK7ZL2NSHDU7DVAPNPTJJKVPJMNLQFW';
+                var signature = new BoaSdk.Signature();
+                signature.fromString('0x01cd1b598618347c1d5df7ce25d94de41bac109699dc0c93bb01703b81' +
+                    'c7731503f7dc5f7f9a9375efb672c83669f5c74ba41d30e5a969d1ed06904eb3b0b6a7');
+                let public_key = BoaSdk.PublicKey.fromString(address);
+                if (public_key.verify(signature, stringToUint8Array('Hello World'))) {
+                    writeMessage("    => verify Success");
+                }
+                else {
+                    writeMessage("    => verify Fail");
+                }
 
-            writeMessage("[Test for verify]");
-            var address = 'GDD5RFGBIUAFCOXQA246BOUPHCK7ZL2NSHDU7DVAPNPTJJKVPJMNLQFW';
-            var signature = new BoaSdk.Signature();
-            signature.fromString('0x01cd1b598618347c1d5df7ce25d94de41bac109699dc0c93bb01703b81' +
-                'c7731503f7dc5f7f9a9375efb672c83669f5c74ba41d30e5a969d1ed06904eb3b0b6a7');
-            let public_key = BoaSdk.PublicKey.fromString(address);
-            if (public_key.verify(signature, stringToUint8Array('Hello World')))
-            {
-                writeMessage("    => verify Success");
-            }
-            else {
-                writeMessage("    => verify Fail");
-            }
+                var boa_client = new BoaSdk.BOAClient("http://127.0.0.1:3836");
+                boa_client.getAllValidators(10)
+                    .then((validators) => {
+                        // On Success
+                        writeMessage(validators.length);
+                        writeMessage(validators[0].address);
+                    })
+                    .catch(err => {
+                    });
 
-            var boa_client = new BoaSdk.BOAClient("http://127.0.0.1:3836");
-            boa_client.getAllValidators(10)
-                .then((validators) =>
-                {
-                    // On Success
-                    writeMessage(validators.length);
-                    writeMessage(validators[0].address);
-                })
-                .catch(err =>
-                {
-                });
+                function stringToUint8Array(str) {
+                    var arr = [];
+                    for (var i = 0; i < str.length; i++)
+                        arr.push(str.charCodeAt(i));
+                    return new Uint8Array(arr);
+                }
 
-            function stringToUint8Array(str) {
-                var arr = [];
-                for (var i = 0; i < str.length; i++)
-                    arr.push(str.charCodeAt(i));
-                return new Uint8Array(arr);
-            }
-
-            function writeMessage(msg) {
-                $('#target').append('<div>' + msg + '</div>');
-            }
-
-        }, 100);
+                function writeMessage(msg) {
+                    $('#target').append('<div>' + msg + '</div>');
+                }
+            });
     </script>
 </head>
 <body>
